@@ -209,7 +209,8 @@ public class LinkedHashMap<K,V>
     /**
      * The iteration ordering method for this linked hash map: <tt>true</tt>
      * for access-order, <tt>false</tt> for insertion-order.
-     *
+     * true: 访问排序
+     * false：插入排序
      * @serial
      */
     final boolean accessOrder;
@@ -217,6 +218,7 @@ public class LinkedHashMap<K,V>
     // internal utilities
 
     // link at the end of list
+    // 添加节点到末尾，以便于顺序访问
     private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
         LinkedHashMap.Entry<K,V> last = tail;
         tail = p;
@@ -229,6 +231,7 @@ public class LinkedHashMap<K,V>
     }
 
     // apply src's links to dst
+    // 替换src为dst节点
     private void transferLinks(LinkedHashMap.Entry<K,V> src,
                                LinkedHashMap.Entry<K,V> dst) {
         LinkedHashMap.Entry<K,V> b = dst.before = src.before;
@@ -244,12 +247,15 @@ public class LinkedHashMap<K,V>
     }
 
     // overrides of HashMap hook methods
-
+    // 置空
     void reinitialize() {
         super.reinitialize();
         head = tail = null;
     }
 
+    // 创建一个新 LinkedHashMap.Entry
+    // 覆盖hashmap中的方法，put()是会调用到这个方法
+    // 每次插入一个新的节点就会与上次插入的建立连接 before, after, 便于顺序访问
     Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
         LinkedHashMap.Entry<K,V> p =
             new LinkedHashMap.Entry<K,V>(hash, key, value, e);
@@ -257,6 +263,7 @@ public class LinkedHashMap<K,V>
         return p;
     }
 
+    // 替换节点
     Node<K,V> replacementNode(Node<K,V> p, Node<K,V> next) {
         LinkedHashMap.Entry<K,V> q = (LinkedHashMap.Entry<K,V>)p;
         LinkedHashMap.Entry<K,V> t =
@@ -265,12 +272,14 @@ public class LinkedHashMap<K,V>
         return t;
     }
 
+    // 创建一个树节点
     TreeNode<K,V> newTreeNode(int hash, K key, V value, Node<K,V> next) {
         TreeNode<K,V> p = new TreeNode<K,V>(hash, key, value, next);
         linkNodeLast(p);
         return p;
     }
 
+    // 替换树节点
     TreeNode<K,V> replacementTreeNode(Node<K,V> p, Node<K,V> next) {
         LinkedHashMap.Entry<K,V> q = (LinkedHashMap.Entry<K,V>)p;
         TreeNode<K,V> t = new TreeNode<K,V>(q.hash, q.key, q.value, next);
@@ -278,6 +287,7 @@ public class LinkedHashMap<K,V>
         return t;
     }
 
+    // remove后处理
     void afterNodeRemoval(Node<K,V> e) { // unlink
         LinkedHashMap.Entry<K,V> p =
             (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
@@ -292,6 +302,7 @@ public class LinkedHashMap<K,V>
             a.before = b;
     }
 
+    // 插入后处理
     void afterNodeInsertion(boolean evict) { // possibly remove eldest
         LinkedHashMap.Entry<K,V> first;
         if (evict && (first = head) != null && removeEldestEntry(first)) {
@@ -300,6 +311,7 @@ public class LinkedHashMap<K,V>
         }
     }
 
+    // 访问后处理
     void afterNodeAccess(Node<K,V> e) { // move node to last
         LinkedHashMap.Entry<K,V> last;
         if (accessOrder && (last = tail) != e) {
@@ -335,6 +347,7 @@ public class LinkedHashMap<K,V>
     /**
      * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
      * with the specified initial capacity and load factor.
+     * 构造方法同 hashmap
      *
      * @param  initialCapacity the initial capacity
      * @param  loadFactor      the load factor
@@ -404,6 +417,7 @@ public class LinkedHashMap<K,V>
     /**
      * Returns <tt>true</tt> if this map maps one or more keys to the
      * specified value.
+     * 遍历判断是否包含值
      *
      * @param value value whose presence in this map is to be tested
      * @return <tt>true</tt> if this map maps one or more keys to the
@@ -445,6 +459,7 @@ public class LinkedHashMap<K,V>
     /**
      * Removes all of the mappings from this map.
      * The map will be empty after this call returns.
+     * 清空
      */
     public void clear() {
         super.clear();
